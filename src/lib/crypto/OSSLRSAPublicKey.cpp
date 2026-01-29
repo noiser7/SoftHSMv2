@@ -52,7 +52,7 @@ OSSLRSAPublicKey::OSSLRSAPublicKey()
 	rsa = NULL;
 }
 
-OSSLRSAPublicKey::OSSLRSAPublicKey(const EVP_PKEY *inRSA)
+OSSLRSAPublicKey::OSSLRSAPublicKey(const EVP_PKEY* inRSA)
 {
 	rsa = NULL;
 
@@ -66,20 +66,20 @@ OSSLRSAPublicKey::~OSSLRSAPublicKey()
 }
 
 // The type
-/*static*/ const char *OSSLRSAPublicKey::type = "OpenSSL RSA Public Key";
+/*static*/ const char* OSSLRSAPublicKey::type = "OpenSSL RSA Public Key";
 
 // Check if the key is of the given type
-bool OSSLRSAPublicKey::isOfType(const char *inType)
+bool OSSLRSAPublicKey::isOfType(const char* inType)
 {
 	return !strcmp(type, inType);
 }
 
 // Set from OpenSSL representation
-void OSSLRSAPublicKey::setFromOSSL(const EVP_PKEY *inRSA)
+void OSSLRSAPublicKey::setFromOSSL(const EVP_PKEY* inRSA)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    BIGNUM *bn_n = NULL;
-	BIGNUM *bn_e = NULL;
+    BIGNUM* bn_n = NULL;
+	BIGNUM* bn_e = NULL;
 	EVP_PKEY_get_bn_param(inRSA, "n", &bn_n);
 	EVP_PKEY_get_bn_param(inRSA, "e", &bn_e);
 	if (bn_n)
@@ -93,9 +93,9 @@ void OSSLRSAPublicKey::setFromOSSL(const EVP_PKEY *inRSA)
 		BN_free(bn_e);
 	}
 #else
-    const BIGNUM *bn_n = NULL;
-	const BIGNUM *bn_e = NULL;
-    const RSA *inRSA1 = EVP_PKEY_get0_RSA(const_cast<EVP_PKEY*>(inRSA));
+    const BIGNUM* bn_n = NULL;
+	const BIGNUM* bn_e = NULL;
+    const RSA* inRSA1 = EVP_PKEY_get0_RSA(const_cast<EVP_PKEY*>(inRSA));
 	RSA_get0_key(inRSA1, &bn_n, &bn_e, NULL);
     if (bn_n)
 	{
@@ -110,7 +110,7 @@ void OSSLRSAPublicKey::setFromOSSL(const EVP_PKEY *inRSA)
 }
 
 // Setters for the RSA public key components
-void OSSLRSAPublicKey::setN(const ByteString &inN)
+void OSSLRSAPublicKey::setN(const ByteString& inN)
 {
 	RSAPublicKey::setN(inN);
 
@@ -121,7 +121,7 @@ void OSSLRSAPublicKey::setN(const ByteString &inN)
 	}
 }
 
-void OSSLRSAPublicKey::setE(const ByteString &inE)
+void OSSLRSAPublicKey::setE(const ByteString& inE)
 {
 	RSAPublicKey::setE(inE);
 
@@ -133,7 +133,7 @@ void OSSLRSAPublicKey::setE(const ByteString &inE)
 }
 
 // Retrieve the OpenSSL representation of the key
-EVP_PKEY *OSSLRSAPublicKey::getOSSLKey()
+EVP_PKEY* OSSLRSAPublicKey::getOSSLKey()
 {
 	if (rsa == NULL)
 		createOSSLKey();
@@ -166,12 +166,12 @@ void OSSLRSAPublicKey::createOSSLKey()
 		ERROR_MSG("Could not build RSA public key parameters");
 		return;
 	}
-	OSSL_PARAM *params = OSSL_PARAM_BLD_to_param(param_bld);
+	OSSL_PARAM* params = OSSL_PARAM_BLD_to_param(param_bld);
 	OSSL_PARAM_BLD_free(param_bld);
 	BN_free(bn_n);
 	BN_free(bn_e);
 
-	EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
+	EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_from_name(NULL, "RSA", NULL);
 	if (ctx == NULL)
 	{
 		ERROR_MSG("Could not create RSA public key creation context");
@@ -191,7 +191,7 @@ void OSSLRSAPublicKey::createOSSLKey()
 	EVP_PKEY_CTX_free(ctx);
 	
 #else
-    RSA *rsa1 = RSA_new();
+    RSA* rsa1 = RSA_new();
 	if (rsa1 == NULL)
     {
 		ERROR_MSG("Could not build RSA object");
