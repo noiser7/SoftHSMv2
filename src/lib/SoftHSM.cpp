@@ -2454,6 +2454,10 @@ CK_RV SoftHSM::AsymEncryptInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMec
 	if (!key->getBooleanValue(CKA_ENCRYPT, false))
 		return CKR_KEY_FUNCTION_NOT_PERMITTED;
 
+	// Check if the specified mechanism is allowed for the key
+	if (!isMechanismPermitted(key, pMechanism->mechanism))
+		return CKR_MECHANISM_INVALID;
+
 	// Get key info
 	CK_KEY_TYPE keyType = key->getUnsignedLongValue(CKA_KEY_TYPE, CKK_VENDOR_DEFINED);
 
@@ -3232,7 +3236,7 @@ CK_RV SoftHSM::AsymDecryptInit(CK_SESSION_HANDLE hSession, CK_MECHANISM_PTR pMec
 				return CKR_KEY_TYPE_INCONSISTENT;
 			rv = MechParamCheckRSAPKCSOAEP(pMechanism);
 			if (rv != CKR_OK)
-				return rv;	
+				return rv;
 
 			mechanism = AsymMech::RSA_PKCS_OAEP;
 			isRSA = true;
