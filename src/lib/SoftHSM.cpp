@@ -13363,7 +13363,7 @@ CK_RV SoftHSM::BuildRSAOAEPParam(const CK_RSA_PKCS_OAEP_PARAMS *params,
 		return CKR_HOST_MEMORY;
 	}
 	// copy label data to end of parameter block
-	oaep_param.sourceData = (char *)parameters + sizeof(RSA_PKCS_OAEP_PARAMS);
+	oaep_param.sourceData = (char*)paramBuf + sizeof(RSA_PKCS_OAEP_PARAMS);
 	oaep_param.sourceDataLen = params->ulSourceDataLen;
 	memcpy(paramBuf, &oaep_param, sizeof(RSA_PKCS_OAEP_PARAMS));
 	memcpy(oaep_param.sourceData, params->pSourceData, params->ulSourceDataLen);
