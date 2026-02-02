@@ -140,11 +140,12 @@ void OSSLRSAPrivateKey::setFromOSSL(const EVP_PKEY* inRSA)
 	const BIGNUM* bn_e = NULL;
 	const BIGNUM* bn_d = NULL;
 	const RSA* inRSA1 = EVP_PKEY_get0_RSA(const_cast<EVP_PKEY *>(inRSA));
-	
-	RSA_get0_factors(inRSA1, &bn_p, &bn_q);
-	RSA_get0_crt_params(inRSA1, &bn_dmp1, &bn_dmq1, &bn_iqmp);
-	RSA_get0_key(inRSA1, &bn_n, &bn_e, &bn_d);
-	
+	if (inRSA != NULL)
+	{
+		RSA_get0_factors(inRSA1, &bn_p, &bn_q);
+		RSA_get0_crt_params(inRSA1, &bn_dmp1, &bn_dmq1, &bn_iqmp);
+		RSA_get0_key(inRSA1, &bn_n, &bn_e, &bn_d);
+	}
 	if (bn_p)
 	{
 		setP(OSSL::bn2ByteString(bn_p));

@@ -96,7 +96,8 @@ void OSSLRSAPublicKey::setFromOSSL(const EVP_PKEY* inRSA)
     const BIGNUM* bn_n = NULL;
 	const BIGNUM* bn_e = NULL;
     const RSA* inRSA1 = EVP_PKEY_get0_RSA(const_cast<EVP_PKEY*>(inRSA));
-	RSA_get0_key(inRSA1, &bn_n, &bn_e, NULL);
+	if (inRSA != NULL)
+		RSA_get0_key(inRSA1, &bn_n, &bn_e, NULL);
     if (bn_n)
 	{
 		setN(OSSL::bn2ByteString(bn_n));
