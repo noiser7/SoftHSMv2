@@ -6511,10 +6511,8 @@ CK_RV SoftHSM::WrapKeyAsym
 
 		case CKM_RSA_PKCS_OAEP:
 			mech = AsymMech::RSA_PKCS_OAEP;
-			// SHA-1 is the only supported option
 			// PKCS#11 2.40 draft 2 section 2.1.8: input length <= k-2-2hashLen
-			if (keydata.size() > modulus_length - 2 - (2 * hashLen))
-				return CKR_KEY_SIZE_RANGE;
+			// key length will be check later
 			break;
 
 		default:
@@ -6557,6 +6555,13 @@ CK_RV SoftHSM::WrapKeyAsym
 			CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
 			return rv;
 		}	
+		if (keydata.size() > modulus_length - 2 - (2 * hashLen))
+		{
+			free(parameters);
+			cipher->recyclePublicKey(publicKey);
+			CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
+			return CKR_KEY_SIZE_RANGE;
+		}
 	}
 	// Wrap the key
 	if (!cipher->wrapKey(publicKey, keydata, wrapped, mech,parameters,paramLen))
