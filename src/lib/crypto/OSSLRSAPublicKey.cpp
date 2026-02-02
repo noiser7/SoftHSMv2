@@ -77,6 +77,11 @@ bool OSSLRSAPublicKey::isOfType(const char* inType)
 // Set from OpenSSL representation
 void OSSLRSAPublicKey::setFromOSSL(const EVP_PKEY* inRSA)
 {
+	if (inRSA == NULL)
+	{
+		ERROR_MSG("Null RSA key");
+		return;
+	}  
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     BIGNUM* bn_n = NULL;
 	BIGNUM* bn_e = NULL;
