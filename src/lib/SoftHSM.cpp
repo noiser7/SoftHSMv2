@@ -6485,15 +6485,6 @@ CK_RV SoftHSM::WrapKeyAsym
 	size_t paramLen = 0;
 	size_t hashLen = 0;
 
-	if (pMechanism->mechanism == CKM_RSA_PKCS_OAEP)
-	{
-		rv = BuildRSAOAEPParam((CK_RSA_PKCS_OAEP_PARAMS *)pMechanism->pParameter,
-			&parameters,&paramLen,&hashLen);
-		if (rv != CKR_OK)
-		{
-			return rv;
-		}	
-	}
 	CK_ULONG modulus_length;
 	switch(pMechanism->mechanism) {
 		case CKM_RSA_PKCS:
@@ -6552,21 +6543,29 @@ CK_RV SoftHSM::WrapKeyAsym
 			break;
 
 		default:
+		    cipher->recyclePublicKey(publicKey);
+			CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
 			return CKR_MECHANISM_INVALID;
 	}
-
+	if (pMechanism->mechanism == CKM_RSA_PKCS_OAEP)
+	{
+		rv = BuildRSAOAEPParam((CK_RSA_PKCS_OAEP_PARAMS *)pMechanism->pParameter,
+			&parameters,&paramLen,&hashLen);
+		if (rv != CKR_OK)
+		{
+			cipher->recyclePublicKey(publicKey);
+			CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
+			return rv;
+		}	
+	}
 	// Wrap the key
 	if (!cipher->wrapKey(publicKey, keydata, wrapped, mech,parameters,paramLen))
-	{
-		cipher->recyclePublicKey(publicKey);
-		CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
-		return CKR_GENERAL_ERROR;
-	}
-
+		rv = CKR_GENERAL_ERROR;
+    free(parameters);
 	cipher->recyclePublicKey(publicKey);
 	CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
 
-	return CKR_OK;
+	return rv;
 }
 
 // Internal: Wrap with mechanism RSA_AES_KEY_WRAP
@@ -7119,6 +7118,8 @@ CK_RV SoftHSM::UnwrapKeyAsym
 			break;
 
 		default:
+			cipher->recyclePrivateKey(unwrappingkey);
+			CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
 			return CKR_MECHANISM_INVALID;
 	}
 
@@ -7130,6 +7131,8 @@ CK_RV SoftHSM::UnwrapKeyAsym
 			&parameters,&paramLen);
 		if (rv != CKR_OK)
 		{
+			cipher->recyclePrivateKey(unwrappingkey);
+			CryptoFactory::i()->recycleAsymmetricAlgorithm(cipher);
 			return rv;
 		}
 	}
