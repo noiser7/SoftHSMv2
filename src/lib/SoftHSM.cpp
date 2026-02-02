@@ -13364,6 +13364,11 @@ CK_RV SoftHSM::BuildRSAOAEPParam(const CK_RSA_PKCS_OAEP_PARAMS *params,
 	}
 	// need copy parameters to session context
 	// label source data will be copyed to end of parameter block
+	if (params->ulSourceDataLen > 0xffffffff - sizeof(RSA_PKCS_OAEP_PARAMS))
+	{
+		ERROR_MSG("OAEP Label too large");
+		return CKR_ARGUMENTS_BAD;
+	}
 	size_t bufLen = sizeof(RSA_PKCS_OAEP_PARAMS) + params->ulSourceDataLen;
 	void *paramBuf = malloc(bufLen);
 	if (paramBuf == NULL)
