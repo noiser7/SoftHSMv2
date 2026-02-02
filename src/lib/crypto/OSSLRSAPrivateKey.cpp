@@ -140,9 +140,11 @@ void OSSLRSAPrivateKey::setFromOSSL(const EVP_PKEY* inRSA)
 	const BIGNUM* bn_e = NULL;
 	const BIGNUM* bn_d = NULL;
 	const RSA* inRSA1 = EVP_PKEY_get0_RSA(const_cast<EVP_PKEY *>(inRSA));
+	
 	RSA_get0_factors(inRSA1, &bn_p, &bn_q);
 	RSA_get0_crt_params(inRSA1, &bn_dmp1, &bn_dmq1, &bn_iqmp);
 	RSA_get0_key(inRSA1, &bn_n, &bn_e, &bn_d);
+	
 	if (bn_p)
 	{
 		setP(OSSL::bn2ByteString(bn_p));
@@ -345,6 +347,7 @@ void OSSLRSAPrivateKey::createOSSLKey()
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 	OSSL_PARAM_BLD* param_bld = OSSL_PARAM_BLD_new();
+	OSSL_PARAM* params = NULL;
 	bool bBuildErr = false;
 	if ((param_bld == NULL) ||
 		(bn_n == NULL) ||
@@ -367,7 +370,8 @@ void OSSLRSAPrivateKey::createOSSLKey()
 	if ((!bBuildErr) && (bn_iqmp != NULL))
 		bBuildErr |= (OSSL_PARAM_BLD_push_BN(param_bld, "rsa-coefficient1", bn_iqmp) <= 0);
 
-	OSSL_PARAM* params = OSSL_PARAM_BLD_to_param(param_bld);
+	if (!bBuildErr)
+		params = OSSL_PARAM_BLD_to_param(param_bld);
 	OSSL_PARAM_BLD_free(param_bld);
 	BN_free(bn_n);
 	BN_free(bn_e);
