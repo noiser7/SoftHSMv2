@@ -415,6 +415,14 @@ void OSSLRSAPrivateKey::createOSSLKey()
 	RSA* rsa1 = RSA_new();
 	if (rsa1 == NULL)
 	{
+		BN_free(bn_n);
+		BN_free(bn_e);
+		BN_free(bn_d);
+		BN_free(bn_p);
+		BN_free(bn_q);
+		BN_free(bn_dmp1);
+		BN_free(bn_dmq1);
+		BN_free(bn_iqmp);
 		ERROR_MSG("Could not build RSA object");
 		return;
 	}

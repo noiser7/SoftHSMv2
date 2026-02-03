@@ -200,6 +200,8 @@ void OSSLRSAPublicKey::createOSSLKey()
     RSA* rsa1 = RSA_new();
 	if (rsa1 == NULL)
     {
+		BN_free(bn_n);
+	    BN_free(bn_e);
 		ERROR_MSG("Could not build RSA object");
 		return;
     }
